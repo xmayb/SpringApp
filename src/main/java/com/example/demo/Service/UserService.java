@@ -1,11 +1,14 @@
 package com.example.demo.Service;
 
 import com.example.demo.DAO.UserDAO;
+import com.example.demo.DAO.UserRequestDTO;
+import com.example.demo.DAO.UserResponseDTO;
 import com.example.demo.Entity.User;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 
@@ -48,6 +51,24 @@ public class UserService {
     public void deleteUser(Long id) {
         userDAO.deleteUser(id);
     }
+
+    //UserRequestDTO
+    public UserResponseDTO createUser(UserRequestDTO dto) {
+        User user = new User(
+                dto.getName(),
+                dto.getEmail(),
+                dto.getPassword()
+        );
+
+        userDAO.createUser(user); // void
+
+        UserResponseDTO response = new UserResponseDTO();
+        response.setName(user.getName());
+        response.setEmail(user.getEmail());
+
+        return response;
+    }
+
 
 
 

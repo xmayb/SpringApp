@@ -20,7 +20,7 @@ public class User {
 
      //Partial constructor.
     //Used when only name and email are needed
-    //  Parameterized Constructor
+    //  To be Parameterized Constructor
     public User(String name, String email) {
         this.name = name;
         this.email = email;
