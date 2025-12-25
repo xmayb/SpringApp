@@ -16,6 +16,9 @@ public class UserService {
 
 
     public UserService(UserDAO userDAO) {
+        if(userDAO == null) {
+            throw new IllegalArgumentException("USerDAO is null");
+        }
         this.userDAO = userDAO;
     }
 
