@@ -18,14 +18,14 @@ public class UserDAO {
     String dbPassword = "fifa6744";
 
     //Create
-    public void createUser(User user) {
+    public void createUser(User user) {//Method which accepts a User object
 
         try (Connection connection = getConnection(url, dbUser, dbPassword);
              PreparedStatement pstmt = connection.prepareStatement(sqlCreate)) {
 
-            pstmt.setString(1, user.getName());
-            pstmt.setString(2, user.getEmail());
-            pstmt.setString(3, user.getPassword());
+            pstmt.setString(1, user.getName()); //Put the name into the first placeholder
+            pstmt.setString(2, user.getEmail()); //Put the email into the second placeholder
+            pstmt.setString(3, user.getPassword()); //Put the password into the third placeholder
             int rowsAffected = pstmt.executeUpdate();
             System.out.println(rowsAffected + " rows were updated.");
 
@@ -41,7 +41,7 @@ public class UserDAO {
             PreparedStatement pstmt = conn.prepareStatement(sqlRead)) {
 
             pstmt.setLong(1, id);
-            ResultSet rs = pstmt.executeQuery();
+            ResultSet rs = pstmt.executeQuery();//Execute the query which gives us a result back
             if(rs.next()) {
                 user = new User(rs.getLong("id"),
                         rs.getString("name"),
