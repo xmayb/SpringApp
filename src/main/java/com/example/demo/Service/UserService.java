@@ -69,6 +69,16 @@ public class UserService {
         return response;
     }
 
+    //UserResponseDTO
+    public UserResponseDTO getUserResponseDTO(User user) {//DTO gives us back outwardly
+        UserResponseDTO response = new UserResponseDTO();
+        response.setId(user.getId());
+        response.setName(user.getName());
+        response.setEmail(user.getEmail());
+        return response;
+    }
+
+
 
 
 

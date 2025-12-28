@@ -1,6 +1,6 @@
 package com.example.demo.DAO;
 
-public class UserResponseDTO {
+public class UserResponseDTO {//Accept information from a client
     private Long id;
     private String name;
     private String email;
@@ -10,6 +10,8 @@ public class UserResponseDTO {
         this.name = name;
         this.email = email;
     }
+
+
 
     public UserResponseDTO() {
 
