@@ -4,11 +4,11 @@ import com.example.demo.DAO.UserDAO;
 import com.example.demo.DAO.UserRequestDTO;
 import com.example.demo.DAO.UserResponseDTO;
 import com.example.demo.Entity.User;
-import org.springframework.stereotype.Repository;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
-import java.util.UUID;
 import java.util.regex.Pattern;
 
 
@@ -52,6 +52,20 @@ public class UserService {
         userDAO.deleteUser(id);
     }
 
+    //Registration logic
+    public UserResponseDTO registerUser(User user) {
+        // TODO: Implement registration logic including password hashing
+        PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+        String rawPassword = user.getPassword();
+        String hashed = passwordEncoder.encode(rawPassword);
+        user.setPassword(hashed);
+
+        //Save user
+        userDAO.createUser(user);
+        //Return to DTO
+        return new UserResponseDTO(user.getId(), user.getName(), user.getEmail());
+    }
+
     //UserRequestDTO
     public UserResponseDTO createUser(UserRequestDTO dto) {
         User user = new User(
@@ -77,6 +91,9 @@ public class UserService {
         response.setEmail(user.getEmail());
         return response;
     }
+
+    //UserService hashing pass
+
 
 
 
