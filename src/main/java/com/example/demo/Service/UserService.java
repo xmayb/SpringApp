@@ -9,6 +9,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.SecureRandom;
+import java.security.spec.KeySpec;
+import java.util.Random;
 import java.util.regex.Pattern;
 
 
@@ -60,6 +65,8 @@ public class UserService {
         String hashed = passwordEncoder.encode(rawPassword);
         user.setPassword(hashed);
 
+
+
         //Save user
         userDAO.createUser(user);
         //Return to DTO
@@ -93,7 +100,28 @@ public class UserService {
     }
 
     //UserService hashing pass
+    public String hashPassword(String password) {
+        PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+        return passwordEncoder.encode(password);
+    }
 
+    //Validation helper
+    public boolean isValidPassword(String password) {
+        //Simple validation
+        char[] password = new char[8];
+        int min = 48;
+        int max = 122;
+        //String regex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])$";
+        Random r = new Random();
+        for(int i = 0; i < password.length; i++) {
+            byte bytes = (byte)(min + r.nextInt(max - min + 1));
+            if(password != null && !(bytes > 57 && bytes < 65) || !(bytes > 90 && bytes < 97) ) {
+                password[i] = bytes;
+                System.out.println("Passwrod is passing ");
+            }
+        }
+
+    }
 
 
 
