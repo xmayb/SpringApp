@@ -105,23 +105,22 @@ public class UserService {
         return passwordEncoder.encode(password);
     }
 
-    //Validation helper
-    public boolean isValidPassword(String password) {
-        //Simple validation
-        char[] password = new char[8];
-        int min = 48;
-        int max = 122;
-        //String regex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])$";
-        Random r = new Random();
-        for(int i = 0; i < password.length; i++) {
-            byte bytes = (byte)(min + r.nextInt(max - min + 1));
-            if(password != null && !(bytes > 57 && bytes < 65) || !(bytes > 90 && bytes < 97) ) {
-                password[i] = bytes;
-                System.out.println("Passwrod is passing ");
-            }
+    public boolean validatePassword(String password) {
+        // Simple validation
+        int maxlength = 72;
+        if(password == null || password.length() < 8) {
+            throw new IllegalArgumentException("Password is too short");
+        }
+        if(password.length() > maxlength) {
+            throw new IllegalArgumentException("Password is too long");
         }
 
+        return true; // if it comes here, the password is valid
     }
+
+    //Validation helper
+
+
 
 
 
