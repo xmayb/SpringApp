@@ -9,11 +9,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import java.security.SecureRandom;
-import java.security.spec.KeySpec;
-import java.util.Random;
 import java.util.regex.Pattern;
 
 
@@ -42,7 +37,7 @@ public class UserService {
             throw new IllegalArgumentException("Invalid email");
 
         }
-        userDAO.createUser(user);
+        userDAO.createUser(user);// save user to the database
     }
 
     public User getUserById(Long id) {
@@ -68,7 +63,7 @@ public class UserService {
 
 
         //Save user
-        userDAO.createUser(user);
+        userDAO.createUser(user);// save user to the database
         //Return to DTO
         return new UserResponseDTO(user.getId(), user.getName(), user.getEmail());
     }
@@ -81,7 +76,7 @@ public class UserService {
                 dto.getPassword()
         );
 
-        userDAO.createUser(user); // void
+        userDAO.createUser(user); // save user to the database
 
         UserResponseDTO response = new UserResponseDTO();
         response.setName(user.getName());
@@ -115,10 +110,27 @@ public class UserService {
             throw new IllegalArgumentException("Password is too long");
         }
 
+        if(!password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$")) {
+            throw new IllegalArgumentException("Password must contain uppercase and special character");
+        }
+
+
         return true; // if it comes here, the password is valid
     }
 
     //Validation helper
+
+    //login
+    public void loginUser(UserDAO userDao, User user, String password) {
+        hashPassword(password);
+        if(user == null) {
+            throw new IllegalArgumentException("Invalid username or password");
+        }
+        if(!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("Invalid username or password");
+
+        }
+    }
 
 
 
