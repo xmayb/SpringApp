@@ -135,6 +135,24 @@ public class UserService {
 
     }
 
+    public void userNameValidation(String name) {
+        if(name == null || name.length() < 4 || name.length() > 30) {
+            throw new IllegalArgumentException("User is required and username length must be 4-30 characters");
+        }
+        if(!name.matches("^[a-zA-Z0-9._-]+$")){
+            throw new IllegalArgumentException("Username contains invalid characters");
+        }
+    }
+
+    public void userEmailValidation(String email) {
+        if(email == null || email.length() > 254) {
+            throw new IllegalArgumentException("Email is required and must be less than 255 characters");
+        }
+        if (!email.matches("^[\\w.-]+@([\\w-]+\\.)+[A-Za-z]{2,}$")) {
+            throw new IllegalArgumentException("Invalid email");
+        }
+    }
+
 
 
 
