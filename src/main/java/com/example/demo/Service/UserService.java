@@ -121,15 +121,18 @@ public class UserService {
     //Validation helper
 
     //login
-    public void loginUser(UserDAO userDao, User user, String password) {
-        hashPassword(password);
+    public void loginUser(User user, String email, String password) {
+
         if(user == null) {
             throw new IllegalArgumentException("Invalid username or password");
         }
+        PasswordEncoder passwordEncoder =
+                PasswordEncoderFactories.createDelegatingPasswordEncoder();//create a password encoder in order to receive an object which is able to encode and decode password
+        validatePassword(password);
         if(!passwordEncoder.matches(password, user.getPassword())) {
             throw new IllegalArgumentException("Invalid username or password");
-
         }
+
     }
 
 
