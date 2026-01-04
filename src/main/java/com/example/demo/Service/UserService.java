@@ -52,15 +52,20 @@ public class UserService {
         userDAO.deleteUser(id);
     }
 
+    private static final PasswordEncoder passwordEncoder =
+            PasswordEncoderFactories.createDelegatingPasswordEncoder();
+
+
     //Registration logic
     public UserResponseDTO registerUser(User user) {
+
+        //Validation
+        userNameValidation(user.getName());
+        userEmailValidation(user.getEmail());
+        validatePassword(user.getPassword());
         // TODO: Implement registration logic including password hashing
-        PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-        String rawPassword = user.getPassword();
-        String hashed = passwordEncoder.encode(rawPassword);
-        user.setPassword(hashed);
 
-
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         //Save user
         userDAO.createUser(user);// save user to the database
@@ -152,6 +157,8 @@ public class UserService {
             throw new IllegalArgumentException("Invalid email");
         }
     }
+
+
 
 
 
