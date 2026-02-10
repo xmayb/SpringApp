@@ -4,11 +4,14 @@ import com.example.demo.DAO.UserDAO;
 import com.example.demo.DAO.UserRequestDTO;
 import com.example.demo.DAO.UserResponseDTO;
 import com.example.demo.Entity.User;
+import jakarta.security.auth.message.AuthException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 
@@ -16,6 +19,29 @@ import java.util.regex.Pattern;
 @Service
 public class UserService {
     private UserDAO userDAO;
+
+
+    /// Map to store login attempts per email
+
+    private Map<String, LoginAttempt> attemptsMap = new ConcurrentHashMap<>();
+
+
+    private static final int MAX_ATTEMPTS = 3;
+    private static final long WINDOW_MS = 10 * 60 * 1000;
+    private static final long BLOCK_MS = 15 * 60 * 1000; // 5 minutes
+
+    private static class LoginAttemp {
+        int attempts = 0;
+        long lastAttemptTime = 0;
+        long blockedUntil = 0;
+    }
+
+    private static class LoginAttempt {
+        int attempts;
+        long lastAttemptTime;
+        long blockedUntil;
+    }
+    ///
 
 
     public UserService(UserDAO userDAO) {
@@ -34,7 +60,7 @@ public class UserService {
 
     public void createUser(User user) {
         if(!isValidEmail(user.getEmail())) {
-            throw new IllegalArgumentException("Invalid email");
+            throw new IllegalArgumentException("Invalid username or password");
 
         }
         userDAO.createUser(user);// save user to the database
@@ -52,26 +78,7 @@ public class UserService {
         userDAO.deleteUser(id);
     }
 
-    private static final PasswordEncoder passwordEncoder =
-            PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
-
-    //Registration logic
-    public UserResponseDTO registerUser(User user) {
-
-        //Validation
-        userNameValidation(user.getName());
-        userEmailValidation(user.getEmail());
-        validatePassword(user.getPassword());
-        // TODO: Implement registration logic including password hashing
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        //Save user
-        userDAO.createUser(user);// save user to the database
-        //Return to DTO
-        return new UserResponseDTO(user.getId(), user.getName(), user.getEmail());
-    }
 
     //UserRequestDTO
     public UserResponseDTO createUser(UserRequestDTO dto) {
@@ -126,7 +133,7 @@ public class UserService {
     //Validation helper
 
     //login
-    public void loginUser(User user, String email, String password) {
+    public void loginUser(User user, String email, String password) throws AuthException {
 
         if(user == null) {
             throw new IllegalArgumentException("Invalid username or password");
@@ -135,8 +142,33 @@ public class UserService {
                 PasswordEncoderFactories.createDelegatingPasswordEncoder();//create a password encoder in order to receive an object which is able to encode and decode password
         validatePassword(password);
         if(!passwordEncoder.matches(password, user.getPassword())) {
-            throw new IllegalArgumentException("Invalid username or password");
+            throw new AuthException("Invalid username or password");
         }
+
+        /// Counts of attempts
+        LoginAttempt attempt = attemptsMap.getOrDefault(email, new LoginAttempt());
+        // Check if user is currently blocked
+        long now = System.currentTimeMillis();
+        if(attempt.blockedUntil > now) {
+            throw new AuthException("Invalid username or password");
+        }
+
+        //check if the password does not match
+        if(!passwordEncoder.matches(password, user.getPassword())) {
+            attempt.attempts++;
+            attempt.lastAttemptTime = now;
+
+            if(attempt.attempts >= MAX_ATTEMPTS) {
+                attempt.blockedUntil = now + BLOCK_MS;
+            }
+
+            attemptsMap.put(email, attempt);
+            throw new AuthException("Invalid username or password");
+        }
+
+        // Reset attempts on successful login
+        attemptsMap.remove(email);
+
 
     }
 
@@ -154,16 +186,11 @@ public class UserService {
             throw new IllegalArgumentException("Email is required and must be less than 255 characters");
         }
         if (!email.matches("^[\\w.-]+@([\\w-]+\\.)+[A-Za-z]{2,}$")) {
-            throw new IllegalArgumentException("Invalid email");
+            throw new IllegalArgumentException("Invalid email or password");
         }
     }
 
 
-
-
-
-
-
-
-
 }
+
+
