@@ -3,9 +3,13 @@ package com.example.demo.DAO;
 import com.example.demo.Entity.User;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
-import static java.sql.DriverManager.getConnection;
+
+
 
 @Repository
 public class UserDAO {
@@ -13,21 +17,24 @@ public class UserDAO {
     String sqlDelete = "DELETE FROM users WHERE id = ?";
     String sqlUpdate = "UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?";
     String sqlRead = "SELECT * FROM users WHERE id = ?";
-    String url = "jdbc:postgresql://localhost:5432/taskflow";
-    String dbUser = "postgres";
-    String dbPassword = "fifa6744";
+
+
+    public static UserDAO createUserDAO(DataSource dataSource) {
+        return new UserDAO(dataSource);
+    }
+
 
     //Create
     public void createUser(User user) {//Method which accepts a User object
 
-        try (Connection connection = getConnection(url, dbUser, dbPassword);
+        try (Connection connection = dataSource.getConnection();
              PreparedStatement pstmt = connection.prepareStatement(sqlCreate)) {
 
             pstmt.setString(1, user.getName()); //Put the name into the first placeholder
             pstmt.setString(2, user.getEmail()); //Put the email into the second placeholder
             pstmt.setString(3, user.getPassword()); //Put the password into the third placeholder
             int rowsAffected = pstmt.executeUpdate();
-            System.out.println(rowsAffected + " rows were updated.");
+
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -37,7 +44,7 @@ public class UserDAO {
     //Read
     public User getUserById(Long id) {
         User user = null;
-        try(Connection conn = getConnection(url, dbUser, dbPassword);
+        try(Connection conn = dataSource.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sqlRead)) {
 
             pstmt.setLong(1, id);
@@ -49,7 +56,7 @@ public class UserDAO {
                         rs.getString("password"));
             }
         }catch(SQLException e) {
-            e.printStackTrace();
+
         }
         return user;
     }
@@ -57,13 +64,8 @@ public class UserDAO {
 
     //UPdate
     public void updateUser(User user) {
-        try(Connection conn = getConnection(url, dbUser, dbPassword);
-            PreparedStatement pstmt = conn.prepareStatement(sqlUpdate)) {
-            pstmt.setString(1, user.getName());
-            pstmt.setString(2, user.getEmail());
-            pstmt.setString(3, user.getPassword());
-            pstmt.setLong(4, user.getId());
-            pstmt.executeUpdate();
+        try (Connection conn = dataSource.getConnection()) {
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -71,7 +73,7 @@ public class UserDAO {
 
     //Delete
     public void deleteUser(Long id) {
-        try(Connection connection = getConnection(url, dbUser, dbPassword);
+        try(Connection connection = dataSource.getConnection();
             PreparedStatement preparedStat = connection.prepareStatement(sqlDelete)){
             preparedStat.setLong(1, id);
             preparedStat.executeUpdate();
@@ -79,5 +81,20 @@ public class UserDAO {
             throw new RuntimeException(e);
         }
     }
+
+    /// CHECKING
+    ///
+    /// 
+    ///
+
+
+    private final DataSource dataSource;
+
+    public UserDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+
+
 
 }

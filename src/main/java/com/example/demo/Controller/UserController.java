@@ -5,6 +5,7 @@ import com.example.demo.DAO.UserRequestDTO;
 import com.example.demo.DAO.UserResponseDTO;
 import com.example.demo.Entity.User;
 import com.example.demo.Service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,7 +13,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api")
 public class UserController {
-    private final UserService userService;//type:UserService; name of field:userService
+
+    private UserService userService;//type:UserService; name of field:userService
 
     public UserController(UserService userService) {//constructor injection says when you will create Controller gives him already UserService
         this.userService = userService;
@@ -23,6 +25,9 @@ public class UserController {
         userService.createUser(user);//reference from createUser method in UserService
         return ResponseEntity.ok(user);
     }
+
+
+
 
     @GetMapping("/users/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
@@ -44,11 +49,32 @@ public class UserController {
     }
 
     //Controller for UserRequest and UserResponseDTO
-    @PostMapping("/users")
-    public ResponseEntity<Void> createUser(@RequestBody UserRequestDTO dto) {
-        userService.createUser(dto);
-        return ResponseEntity.ok().build();
+
+    @GetMapping("/home")
+    public String home() {
+        return "Backend works!";
     }
+
+    @PostMapping("/registration")
+    public ResponseEntity<User> registration(@RequestBody User user) {
+        userService.createUser(user);
+        return ResponseEntity.ok(user);
+    }
+
+    //Profile users
+
+
+
+
+
+    @GetMapping("/profile{username}")
+    public ResponseEntity<User> getProfile(@PathVariable Long id) {
+        return userService.getUserById(id);
+    }
+
+
+
+
 
 
 

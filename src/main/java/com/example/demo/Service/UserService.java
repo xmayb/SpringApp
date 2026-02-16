@@ -10,6 +10,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
@@ -19,6 +23,8 @@ import java.util.regex.Pattern;
 @Service
 public class UserService {
     private UserDAO userDAO;
+
+
 
 
     /// Map to store login attempts per email
@@ -45,6 +51,8 @@ public class UserService {
 
 
     public UserService(UserDAO userDAO) {
+
+
         if(userDAO == null) {
             throw new IllegalArgumentException("USerDAO is null");
         }
@@ -141,9 +149,7 @@ public class UserService {
         PasswordEncoder passwordEncoder =
                 PasswordEncoderFactories.createDelegatingPasswordEncoder();//create a password encoder in order to receive an object which is able to encode and decode password
         validatePassword(password);
-        if(!passwordEncoder.matches(password, user.getPassword())) {
-            throw new AuthException("Invalid username or password");
-        }
+
 
         /// Counts of attempts
         LoginAttempt attempt = attemptsMap.getOrDefault(email, new LoginAttempt());
@@ -189,6 +195,10 @@ public class UserService {
             throw new IllegalArgumentException("Invalid email or password");
         }
     }
+
+    /// CHECKING
+    ///
+
 
 
 }
